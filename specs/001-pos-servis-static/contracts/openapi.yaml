@@ -1,0 +1,1032 @@
+openapi: 3.0.3
+info:
+  title: POS + Servis Kedai Komputer (Static Web MVP) - Contract
+  version: 1.0.0
+  description: |
+    Contract untuk operasi yang diperlukan oleh Static Web MVP.
+    Implementasi sebenar adalah in-browser services (IndexedDB), bukan API network.
+servers:
+  - url: http://localhost
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Customers
+  - name: Devices
+  - name: Jobs
+  - name: Quotations
+  - name: Invoices
+  - name: Payments
+  - name: Receipts
+  - name: Products
+  - name: Stock
+  - name: Reports
+  - name: Backup
+  - name: Audit
+  - name: Settings
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login (device-local)
+      operationId: authLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      operationId: authLogout
+      responses:
+        "204":
+          description: Logged out
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+      operationId: usersList
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags: [Users]
+      summary: Create user (admin only)
+      operationId: usersCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /customers:
+    get:
+      tags: [Customers]
+      summary: List/search customers
+      operationId: customersList
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search by name/phone
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+    post:
+      tags: [Customers]
+      summary: Create customer
+      operationId: customersCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+
+  /customers/{customerId}:
+    parameters:
+      - $ref: "#/components/parameters/CustomerId"
+    get:
+      tags: [Customers]
+      summary: Get customer
+      operationId: customersGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags: [Customers]
+      summary: Update customer
+      operationId: customersUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+
+  /customers/{customerId}/devices:
+    parameters:
+      - $ref: "#/components/parameters/CustomerId"
+    get:
+      tags: [Devices]
+      summary: List devices by customer
+      operationId: devicesListByCustomer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      tags: [Devices]
+      summary: Create device for customer
+      operationId: devicesCreateForCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /devices/{deviceId}:
+    parameters:
+      - $ref: "#/components/parameters/DeviceId"
+    get:
+      tags: [Devices]
+      summary: Get device
+      operationId: devicesGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+    put:
+      tags: [Devices]
+      summary: Update device
+      operationId: devicesUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+
+  /jobs:
+    get:
+      tags: [Jobs]
+      summary: List/search jobs
+      operationId: jobsList
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search by jobNo/customer/device/docNo
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/JobStatus"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      tags: [Jobs]
+      summary: Create job
+      operationId: jobsCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobCreateRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{jobId}:
+    parameters:
+      - $ref: "#/components/parameters/JobId"
+    get:
+      tags: [Jobs]
+      summary: Get job
+      operationId: jobsGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+    put:
+      tags: [Jobs]
+      summary: Update job (assignment, notes, costs)
+      operationId: jobsUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobUpdateRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{jobId}/status:
+    parameters:
+      - $ref: "#/components/parameters/JobId"
+    post:
+      tags: [Jobs]
+      summary: Change job status
+      operationId: jobsChangeStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobStatusChange"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /quotations:
+    post:
+      tags: [Quotations]
+      summary: Create quotation
+      operationId: quotationsCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuotationCreateRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quotation"
+
+  /quotations/{quotationId}/status:
+    parameters:
+      - $ref: "#/components/parameters/QuotationId"
+    post:
+      tags: [Quotations]
+      summary: Change quotation status
+      operationId: quotationsChangeStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuotationStatusChange"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quotation"
+
+  /invoices:
+    post:
+      tags: [Invoices]
+      summary: Create invoice
+      operationId: invoicesCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceCreateRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+
+  /invoices/{invoiceId}/status:
+    parameters:
+      - $ref: "#/components/parameters/InvoiceId"
+    post:
+      tags: [Invoices]
+      summary: Change invoice status (cancel)
+      operationId: invoicesChangeStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceStatusChange"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+
+  /invoices/{invoiceId}/payments:
+    parameters:
+      - $ref: "#/components/parameters/InvoiceId"
+    post:
+      tags: [Payments]
+      summary: Record payment
+      operationId: paymentsCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentCreateRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /invoices/{invoiceId}/receipt:
+    parameters:
+      - $ref: "#/components/parameters/InvoiceId"
+    post:
+      tags: [Receipts]
+      summary: Generate receipt (invoice must be PAID)
+      operationId: receiptsGenerate
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+
+  /products:
+    post:
+      tags: [Products]
+      summary: Create product
+      operationId: productsCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{productId}/stock-movements:
+    parameters:
+      - $ref: "#/components/parameters/ProductId"
+    post:
+      tags: [Stock]
+      summary: Create stock movement
+      operationId: stockMovementsCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StockMovementCreateRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockMovement"
+
+  /reports/summary:
+    get:
+      tags: [Reports]
+      summary: Dashboard summary (jobs today, unpaid invoices, low stock)
+      operationId: reportsSummary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportSummary"
+
+  /backup/export:
+    get:
+      tags: [Backup]
+      summary: Export backup JSON
+      operationId: backupExport
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BackupEnvelope"
+
+  /backup/import:
+    post:
+      tags: [Backup]
+      summary: Import backup JSON
+      operationId: backupImport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BackupEnvelope"
+      responses:
+        "204":
+          description: Imported
+        "400":
+          description: Invalid backup
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /audit-events:
+    get:
+      tags: [Audit]
+      summary: List audit events
+      operationId: auditEventsList
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditEvent"
+
+  /settings:
+    get:
+      tags: [Settings]
+      summary: Get settings
+      operationId: settingsGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      tags: [Settings]
+      summary: Update settings
+      operationId: settingsUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Settings"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+components:
+  parameters:
+    CustomerId:
+      in: path
+      name: customerId
+      required: true
+      schema:
+        type: string
+    DeviceId:
+      in: path
+      name: deviceId
+      required: true
+      schema:
+        type: string
+    JobId:
+      in: path
+      name: jobId
+      required: true
+      schema:
+        type: string
+    QuotationId:
+      in: path
+      name: quotationId
+      required: true
+      schema:
+        type: string
+    InvoiceId:
+      in: path
+      name: invoiceId
+      required: true
+      schema:
+        type: string
+    ProductId:
+      in: path
+      name: productId
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    Role:
+      type: string
+      enum: [ADMIN, USER]
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+
+    Session:
+      type: object
+      required: [userId, role]
+      properties:
+        userId: { type: string }
+        role:
+          $ref: "#/components/schemas/Role"
+
+    User:
+      type: object
+      required: [id, username, displayName, role, isActive]
+      properties:
+        id: { type: string }
+        username: { type: string }
+        displayName: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        isActive: { type: boolean }
+
+    UserInput:
+      type: object
+      required: [username, displayName, role, password]
+      properties:
+        username: { type: string }
+        displayName: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        password: { type: string }
+
+    Customer:
+      type: object
+      required: [id, name, phone]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        address: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+
+    CustomerInput:
+      type: object
+      required: [name, phone]
+      properties:
+        name: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        address: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+
+    Device:
+      type: object
+      required: [id, customerId, type]
+      properties:
+        id: { type: string }
+        customerId: { type: string }
+        type: { type: string }
+        brand: { type: string }
+        model: { type: string }
+        serialNumber: { type: string }
+        accessoriesReceived: { type: string }
+        complaint: { type: string }
+
+    DeviceInput:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string }
+        brand: { type: string }
+        model: { type: string }
+        serialNumber: { type: string }
+        accessoriesReceived: { type: string }
+        complaint: { type: string }
+        passwordNote:
+          type: string
+          description: Sensitive - optional/opt-in; MUST NOT appear in printed documents.
+
+    JobStatus:
+      type: string
+      enum: [RECEIVED, DIAGNOSE, QUOTED, IN_PROGRESS, READY, CLOSED]
+
+    Job:
+      type: object
+      required: [id, jobNo, customerId, deviceId, status]
+      properties:
+        id: { type: string }
+        jobNo: { type: string }
+        customerId: { type: string }
+        deviceId: { type: string }
+        status: { $ref: "#/components/schemas/JobStatus" }
+        assignedUserId: { type: string }
+        internalNote: { type: string }
+        customerNote: { type: string }
+
+    JobCreateRequest:
+      type: object
+      required: [customerId, deviceId]
+      properties:
+        customerId: { type: string }
+        deviceId: { type: string }
+        assignedUserId: { type: string }
+        internalNote: { type: string }
+        customerNote: { type: string }
+
+    JobUpdateRequest:
+      type: object
+      properties:
+        assignedUserId: { type: string }
+        internalNote: { type: string }
+        customerNote: { type: string }
+        laborCents: { type: integer }
+        partsCents: { type: integer }
+        discountCents: { type: integer }
+        taxCents: { type: integer }
+
+    JobStatusChange:
+      type: object
+      required: [toStatus]
+      properties:
+        toStatus: { $ref: "#/components/schemas/JobStatus" }
+
+    LineItem:
+      type: object
+      required: [id, type, description, quantity, unitPriceCents, lineTotalCents]
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [SERVICE, PRODUCT]
+        description: { type: string }
+        quantity: { type: number }
+        unitPriceCents: { type: integer }
+        lineTotalCents: { type: integer }
+        productId: { type: string }
+
+    QuotationStatus:
+      type: string
+      enum: [DRAFT, SENT, ACCEPTED, REJECTED, EXPIRED]
+
+    Quotation:
+      type: object
+      required: [id, quotationNo, customerId, status, lineItems, totalCents]
+      properties:
+        id: { type: string }
+        quotationNo: { type: string }
+        jobId: { type: string }
+        customerId: { type: string }
+        deviceId: { type: string }
+        status: { $ref: "#/components/schemas/QuotationStatus" }
+        validUntil:
+          type: string
+          format: date
+        lineItems:
+          type: array
+          items: { $ref: "#/components/schemas/LineItem" }
+        totalCents: { type: integer }
+
+    QuotationCreateRequest:
+      type: object
+      required: [customerId, lineItems]
+      properties:
+        jobId: { type: string }
+        customerId: { type: string }
+        deviceId: { type: string }
+        validUntil:
+          type: string
+          format: date
+        lineItems:
+          type: array
+          items: { $ref: "#/components/schemas/LineItem" }
+        discountCents: { type: integer }
+        taxCents: { type: integer }
+
+    QuotationStatusChange:
+      type: object
+      required: [toStatus]
+      properties:
+        toStatus: { $ref: "#/components/schemas/QuotationStatus" }
+
+    InvoiceStatus:
+      type: string
+      enum: [UNPAID, PARTIALLY_PAID, PAID, CANCELLED]
+
+    Invoice:
+      type: object
+      required: [id, invoiceNo, customerId, status, lineItems, totalCents, balanceCents]
+      properties:
+        id: { type: string }
+        invoiceNo: { type: string }
+        quotationId: { type: string }
+        jobId: { type: string }
+        customerId: { type: string }
+        deviceId: { type: string }
+        status: { $ref: "#/components/schemas/InvoiceStatus" }
+        lineItems:
+          type: array
+          items: { $ref: "#/components/schemas/LineItem" }
+        totalCents: { type: integer }
+        amountPaidCents: { type: integer }
+        balanceCents: { type: integer }
+        cancelReason: { type: string }
+
+    InvoiceCreateRequest:
+      type: object
+      required: [customerId, lineItems]
+      properties:
+        quotationId: { type: string }
+        jobId: { type: string }
+        customerId: { type: string }
+        deviceId: { type: string }
+        dueDate:
+          type: string
+          format: date
+        lineItems:
+          type: array
+          items: { $ref: "#/components/schemas/LineItem" }
+        discountCents: { type: integer }
+        taxCents: { type: integer }
+
+    InvoiceStatusChange:
+      type: object
+      required: [toStatus]
+      properties:
+        toStatus: { $ref: "#/components/schemas/InvoiceStatus" }
+        cancelReason:
+          type: string
+          description: Required when toStatus=CANCELLED
+
+    PaymentMethod:
+      type: string
+      enum: [CASH, ONLINE]
+
+    Payment:
+      type: object
+      required: [id, invoiceId, method, amountCents]
+      properties:
+        id: { type: string }
+        invoiceId: { type: string }
+        method: { $ref: "#/components/schemas/PaymentMethod" }
+        amountCents: { type: integer }
+        reference: { type: string }
+        provider: { type: string }
+
+    PaymentCreateRequest:
+      type: object
+      required: [method, amountCents]
+      properties:
+        method: { $ref: "#/components/schemas/PaymentMethod" }
+        amountCents: { type: integer }
+        reference: { type: string }
+        provider: { type: string }
+
+    Receipt:
+      type: object
+      required: [id, receiptNo, invoiceId, paidAt, totalPaidCents]
+      properties:
+        id: { type: string }
+        receiptNo: { type: string }
+        invoiceId: { type: string }
+        paidAt:
+          type: string
+          format: date-time
+        paymentIds:
+          type: array
+          items: { type: string }
+        totalPaidCents: { type: integer }
+
+    Product:
+      type: object
+      required: [id, name, costCents, priceCents, stockQty, minStockQty]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        sku: { type: string }
+        costCents: { type: integer }
+        priceCents: { type: integer }
+        stockQty: { type: integer }
+        minStockQty: { type: integer }
+
+    ProductInput:
+      type: object
+      required: [name, costCents, priceCents, stockQty, minStockQty]
+      properties:
+        name: { type: string }
+        sku: { type: string }
+        costCents: { type: integer }
+        priceCents: { type: integer }
+        stockQty: { type: integer }
+        minStockQty: { type: integer }
+
+    StockMovementType:
+      type: string
+      enum: [IN, OUT, ADJUST, SALE, RETURN]
+
+    StockMovement:
+      type: object
+      required: [id, productId, type, deltaQty]
+      properties:
+        id: { type: string }
+        productId: { type: string }
+        type: { $ref: "#/components/schemas/StockMovementType" }
+        deltaQty: { type: integer }
+        reason: { type: string }
+        invoiceId: { type: string }
+
+    StockMovementCreateRequest:
+      type: object
+      required: [type, deltaQty]
+      properties:
+        type: { $ref: "#/components/schemas/StockMovementType" }
+        deltaQty: { type: integer }
+        reason: { type: string }
+        invoiceId: { type: string }
+
+    ReportSummary:
+      type: object
+      required: [jobsTodayCount, unpaidInvoicesCount, lowStockCount]
+      properties:
+        jobsTodayCount: { type: integer }
+        unpaidInvoicesCount: { type: integer }
+        lowStockCount: { type: integer }
+
+    BackupEnvelope:
+      type: object
+      required: [schemaVersion, exportedAt, app, data]
+      properties:
+        schemaVersion: { type: string }
+        exportedAt:
+          type: string
+          format: date-time
+        app: { type: string }
+        data:
+          type: object
+          additionalProperties: true
+
+    Settings:
+      type: object
+      required: [companyProfile, documentNumbering, printSettings]
+      properties:
+        companyProfile:
+          $ref: "#/components/schemas/CompanyProfile"
+        documentNumbering:
+          $ref: "#/components/schemas/DocumentNumbering"
+        printSettings:
+          $ref: "#/components/schemas/PrintSettings"
+
+    CompanyProfile:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        address: { type: string }
+        phone: { type: string }
+        logoDataUrl: { type: string }
+
+    DocumentNumbering:
+      type: object
+      required: [year, jobCounter, quotationCounter, invoiceCounter, receiptCounter]
+      properties:
+        year: { type: integer }
+        jobCounter: { type: integer }
+        quotationCounter: { type: integer }
+        invoiceCounter: { type: integer }
+        receiptCounter: { type: integer }
+
+    PrintSettings:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [A4, THERMAL]
+        thermalWidthMm: { type: integer }
+
+    AuditEvent:
+      type: object
+      required: [id, actorUserId, action, entityType, entityId, summary, createdAt]
+      properties:
+        id: { type: string }
+        actorUserId: { type: string }
+        action: { type: string }
+        entityType: { type: string }
+        entityId: { type: string }
+        summary: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
