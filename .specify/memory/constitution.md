@@ -1,50 +1,73 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: template -> 1.0.0
+- Principles: Initialized (5)
+- Added sections: Scope & Constraints (Static Web), Workflow & Quality Gates
+- Templates requiring updates: none
+- Deferred TODOs: none
+-->
+
+# Sistem Pengurusan Jual Beli & Servis Kedai Komputer (Static Web) Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### 1) Static-Only Delivery (Non-Negotiable)
+Sistem MUST boleh dijalankan sepenuhnya dalam pelayar (HTML/CSS/JS) dan di-host sebagai fail statik
+tanpa runtime backend (tiada server-side rendering wajib, tiada DB server). Penyimpanan data MUST
+menggunakan storan tempatan (IndexedDB/LocalStorage) dan/atau import/export fail (cth. JSON). Jika
+sesuatu ciri memerlukan backend untuk keselamatan atau multi-user sebenar, ia MUST ditandakan sebagai
+out-of-scope untuk versi statik dan dirancang sebagai upgrade berasingan.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### 2) Offline-First PWA + UI Responsif
+Antaramuka MUST responsif untuk telefon pintar dan laptop. Sistem SHOULD menyokong PWA (installable)
+dan offline caching untuk aliran kerja teras (customer/device, job servis, dokumen transaksi, rekod bayaran).
+Prestasi MUST sesuai untuk kegunaan kaunter: load cepat, interaksi segera, dan tanpa UI "lag".
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### 3) Data Minimization & Privacy by Default
+Sistem MUST simpan data minimum yang diperlukan untuk operasi kedai (pelanggan, peranti, job, dokumen,
+bayaran, produk/stok). Data sensitif seperti password peranti MUST tidak disimpan secara default; jika
+benar-benar perlu, ia MUST opt-in, dipaparkan masked, dan mempunyai tindakan jelas untuk padam.
+Sistem MUST menyediakan cara mudah untuk backup/restore (export/import) dan 'clear all local data'.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### 4) Dokumen Transaksi Konsisten (Quotation/Invoice/Receipt)
+Sistem MUST menjana dokumen profesional dan konsisten menggunakan templat (logo, alamat, nombor
+dokumen, tarikh, item/servis, jumlah). Output MUST menyokong print (A4 dan/atau thermal) dan/atau PDF
+secara client-side. Nombor dokumen MUST unik dan boleh diaudit pada storan tempatan (termasuk status
+bayaran tunai/online dengan rujukan transaksi untuk online).
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### 5) Modular, Template-Based, Upgrade-Friendly
+Kod MUST modular mengikut domain (Customers/Devices, Jobs/Servis, Dokumen, Payments, Inventory,
+Reports) dan templat UI/dokumen MUST boleh dikemaskini tanpa ubah logik teras. Semua operasi storan
+MUST melalui lapisan 'storage adapter' tunggal supaya migrasi ke backend/sync boleh dibuat kemudian.
+Sistem SHOULD kekal ringkas (YAGNI) dan fokus kepada MVP yang benar-benar digunakan di kaunter.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Scope & Constraints (Static Web)
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- **Domain MVP**: Rekod job/ticket servis (status), pelanggan + peranti, sebutharga/quotation, invois,
+  resit, dan rekod bayaran tunai/online (online = simpan reference manual).
+- **Auth/Roles**: Jika ada "Admin/User", ia hanya untuk UX gating pada peranti yang sama (bukan
+  keselamatan sebenar). Tiada multi-user serentak atau cloud sync dalam versi statik.
+- **Storan & backup**: Data kekal di peranti; export/import (JSON) digunakan untuk pindah/backup.
+- **Integrasi**: Tiada payment gateway wajib dalam versi statik; integrasi (gateway/WhatsApp/SMS) hanya
+  dibenarkan jika ia boleh beroperasi tanpa backend atau ditetapkan sebagai fasa upgrade.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Workflow & Quality Gates
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Setiap feature MUST ada `spec.md` dengan user stories + acceptance scenarios yang boleh diuji.
+- Setiap plan MUST menyertakan "Constitution Check" (static-only, privacy, dokumen konsisten, offline).
+- Minimum QA untuk setiap feature: ujian manual senarai semak (mobile + desktop, offline mode, print/PDF).
+- Perubahan yang menambah kebergantungan backend MUST dicadangkan sebagai fasa berasingan dan
+  melibatkan bump versi MAJOR/MINOR mengikut impak.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- Constitution ini adalah sumber utama untuk prinsip pembangunan dan mengatasi dokumen lain jika konflik.
+- Pindaan MUST dibuat melalui perubahan bertulis pada fail ini dan disemak bersama impak kepada templat
+  `.specify/templates/*` dan spesifikasi feature.
+- Versioning policy (SemVer):
+  - **MAJOR**: Menukar/menarik balik prinsip teras atau menambah keperluan yang memecahkan workflow.
+  - **MINOR**: Menambah prinsip/sekatan baru yang tidak memecahkan yang sedia ada.
+  - **PATCH**: Klarifikasi, pembaikan bahasa, atau tambahan kecil tanpa perubahan maksud.
+- Review expectation: setiap `plan.md`/`spec.md` MUST menyatakan pematuhan (atau pelanggaran + justifikasi).
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-12-22 | **Last Amended**: 2025-12-22
