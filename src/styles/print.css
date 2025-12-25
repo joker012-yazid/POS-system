@@ -1,0 +1,278 @@
+/**
+ * Print styles for A4 documents (invoices, quotations, receipts)
+ */
+
+@media print {
+  /* Reset */
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  /* Hide non-printable elements */
+  .no-print,
+  header,
+  nav,
+  aside,
+  footer:not(.print-footer),
+  button,
+  .btn,
+  [role="navigation"],
+  [role="banner"] {
+    display: none !important;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Print container */
+  .print-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Document header */
+  .print-header {
+    margin-bottom: 20pt;
+    padding-bottom: 10pt;
+    border-bottom: 2pt solid #000;
+  }
+
+  .print-header .company-name {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 5pt;
+  }
+
+  .print-header .company-info {
+    font-size: 10pt;
+    color: #333;
+  }
+
+  /* Document title */
+  .print-title {
+    font-size: 16pt;
+    font-weight: bold;
+    text-align: center;
+    margin: 15pt 0;
+    text-transform: uppercase;
+  }
+
+  /* Document info section */
+  .print-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15pt;
+  }
+
+  .print-info-block {
+    flex: 1;
+  }
+
+  .print-info-block h4 {
+    font-size: 11pt;
+    font-weight: bold;
+    margin-bottom: 5pt;
+    color: #333;
+  }
+
+  .print-info-block p {
+    font-size: 10pt;
+    margin: 2pt 0;
+  }
+
+  /* Tables */
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15pt 0;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1pt solid #333;
+    padding: 6pt 8pt;
+    text-align: left;
+    font-size: 10pt;
+  }
+
+  .print-table th {
+    background-color: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-weight: bold;
+  }
+
+  .print-table tr:nth-child(even) {
+    background-color: #fafafa !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-table .text-right {
+    text-align: right;
+  }
+
+  .print-table .text-center {
+    text-align: center;
+  }
+
+  /* Totals section */
+  .print-totals {
+    width: 50%;
+    margin-left: auto;
+    margin-top: 10pt;
+  }
+
+  .print-totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4pt 0;
+    font-size: 10pt;
+  }
+
+  .print-totals-row.total {
+    font-weight: bold;
+    font-size: 12pt;
+    border-top: 2pt solid #000;
+    padding-top: 8pt;
+    margin-top: 4pt;
+  }
+
+  /* Footer */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+    padding-top: 10pt;
+    border-top: 1pt solid #ccc;
+  }
+
+  /* Notes section */
+  .print-notes {
+    margin-top: 20pt;
+    padding: 10pt;
+    background-color: #f9f9f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border: 1pt solid #ddd;
+    font-size: 10pt;
+  }
+
+  .print-notes h4 {
+    font-size: 11pt;
+    font-weight: bold;
+    margin-bottom: 5pt;
+  }
+
+  /* Signature section */
+  .print-signature {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40pt;
+  }
+
+  .print-signature-box {
+    width: 40%;
+    text-align: center;
+  }
+
+  .print-signature-line {
+    border-top: 1pt solid #000;
+    margin-top: 40pt;
+    padding-top: 5pt;
+    font-size: 10pt;
+  }
+
+  /* Status badges */
+  .print-status {
+    display: inline-block;
+    padding: 3pt 8pt;
+    border: 1pt solid #000;
+    font-size: 9pt;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  /* Links */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
+  /* Ensure images print */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Thermal receipt styles (58mm or 80mm) */
+@media print and (max-width: 80mm) {
+  @page {
+    size: 80mm auto;
+    margin: 3mm;
+  }
+
+  html,
+  body {
+    width: 80mm;
+    min-height: auto;
+    font-size: 10pt;
+  }
+
+  .print-header .company-name {
+    font-size: 14pt;
+  }
+
+  .print-table th,
+  .print-table td {
+    padding: 3pt 4pt;
+    font-size: 9pt;
+    border: none;
+    border-bottom: 1pt dashed #ccc;
+  }
+
+  .print-totals {
+    width: 100%;
+  }
+
+  .print-signature {
+    display: none;
+  }
+}
